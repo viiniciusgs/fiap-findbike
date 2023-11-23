@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
               const Padding(
                 padding: EdgeInsets.only(bottom: 32.0),
                 child: Text(
-                  'Find Bike',
+                  'Conecte-se',
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
               ),
