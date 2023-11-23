@@ -12,7 +12,9 @@ export class BikesService {
   }
 
   findAll() {
-    return this.prisma.bike.findMany();
+    return this.prisma.bike.findMany({
+      include: { station: { include: { address: true } } },
+    });
   }
 
   update(id: number, updateBikeDto: UpdateBikeDto) {
