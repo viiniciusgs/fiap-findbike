@@ -39,4 +39,14 @@ model Station {
   addressId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Bike      Bike[]
+}
+
+model Bike {
+  id        Int      @id @default(autoincrement())
+  available Boolean  @default(true)
+  station   Station  @relation(fields: [stationId], references: [id])
+  stationId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
