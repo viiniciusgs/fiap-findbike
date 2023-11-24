@@ -1,3 +1,4 @@
+import 'package:findbike_app/repositories/bikes_repository.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -8,6 +9,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _bikesRepository = BikesRepository();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,46 +56,68 @@ class _HomePageState extends State<HomePage> {
           width: double.infinity,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: CustomScrollView(
-              slivers: [
-                SliverList.builder(
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: const Text('Bike 1'),
-                      subtitle: const Text('Avenida Paulista, Estação 1'),
-                      trailing: ElevatedButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('Alugar Bike 1'),
-                                content: const Text('Deseja alugar a bike?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Não'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Sim'),
-                                  ),
-                                ],
-                              );
-                            },
+            child: FutureBuilder(
+              future: _bikesRepository.bikes(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final bikes = snapshot.data;
+
+                  return CustomScrollView(
+                    slivers: [
+                      SliverList.builder(
+                        itemBuilder: (context, index) {
+                          final bike = bikes[index];
+
+                          return ListTile(
+                            title: Text('Bike ${bike["id"]}'),
+                            subtitle: Text(
+                                '${bike["station"]["address"]["street"]}, ${bike["station"]["name"]}'),
+                            trailing: ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Alugar Bike ${bike["id"]}}'),
+                                      content:
+                                          const Text('Deseja alugar a bike?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Não'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _bikesRepository
+                                                  .update(bike["id"]);
+                                            });
+
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Sim'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: const Text('Alugar'),
+                            ),
                           );
                         },
-                        child: const Text('Alugar'),
+                        itemCount: bikes.length,
                       ),
-                    );
-                  },
-                  itemCount: 20,
-                ),
-              ],
+                    ],
+                  );
+                }
+
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
             ),
           ),
         ),

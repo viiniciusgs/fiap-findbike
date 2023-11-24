@@ -1,4 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:findbike_app/components/custom_divider.dart';
+import 'package:findbike_app/models/register_dto.dart';
+import 'package:findbike_app/repositories/register_repository.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -9,6 +13,11 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _registerRepository = RegisterRepository();
+
   bool _obscurePassword = true;
 
   @override
@@ -36,6 +45,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Insira seu nome',
                   label: Text('Nome'),
                 ),
+                controller: _nameController,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -45,6 +55,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Insira seu e-mail',
                   label: Text('E-mail'),
                 ),
+                controller: _emailController,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -65,11 +76,28 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Insira sua senha',
                   label: const Text('Senha'),
                 ),
+                controller: _passwordController,
               ),
               const SizedBox(height: 24.0),
               FilledButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/');
+                onPressed: () async {
+                  final body = RegisterDTO(
+                    name: _nameController.text,
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                  );
+
+                  final result = await _registerRepository.register(body);
+
+                  if (result) {
+                    Navigator.of(context).pushNamed('/');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Erro ao criar conta!'),
+                      ),
+                    );
+                  }
                 },
                 style: ButtonStyle(
                   fixedSize: MaterialStateProperty.all(

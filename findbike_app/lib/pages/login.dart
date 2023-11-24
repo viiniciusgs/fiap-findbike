@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:findbike_app/components/custom_divider.dart';
+import 'package:findbike_app/repositories/login_repository.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -9,6 +12,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _loginRepository = LoginRepository();
+
   bool _obscurePassword = true;
 
   @override
@@ -36,6 +43,7 @@ class _LoginPageState extends State<LoginPage> {
                   hintText: 'Insira seu e-mail',
                   label: Text('E-mail'),
                 ),
+                controller: _emailController,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -56,11 +64,23 @@ class _LoginPageState extends State<LoginPage> {
                   hintText: 'Insira sua senha',
                   label: const Text('Senha'),
                 ),
+                controller: _passwordController,
               ),
               const SizedBox(height: 24.0),
               FilledButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/');
+                onPressed: () async {
+                  final result = await _loginRepository.login(
+                      _emailController.text, _passwordController.text);
+
+                  if (result) {
+                    Navigator.of(context).pushNamed('/');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('E-mail ou senha incorretos!'),
+                      ),
+                    );
+                  }
                 },
                 style: ButtonStyle(
                   fixedSize: MaterialStateProperty.all(
